@@ -1,0 +1,12 @@
+{
+  "name": "test-automation",
+  "version": "1.0.0",
+  "description": "Test automation with Cypress and Karate",
+  "scripts": {
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
+  },
+  "devDependencies": {
+    "cypress": "^13.6.0"
+  }
+}
