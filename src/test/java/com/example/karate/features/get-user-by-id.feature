@@ -1,18 +1,18 @@
 Feature: Buscar usuário por ID - GET /users/{id}
 
   Background:
-    * url baseUrl
+    * url 'https://serverest.dev'
     * configure headers = { 'Content-Type': 'application/json' }
-    * def timestamp = Date.now()
-    * def randomEmail = 'usuario' + timestamp + '@teste.com'
+    * def gerarEmail = function(){ return 'usuario' + java.lang.System.currentTimeMillis() + '@teste.com' }
 
   Scenario: Buscar usuário por ID válido
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Para Busca",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true"
       }
@@ -26,7 +26,7 @@ Feature: Buscar usuário por ID - GET /users/{id}
     Then status 200
     And match response._id == userId
     And match response.nome == 'Usuário Para Busca'
-    And match response.email == randomEmail
+    And match response.email == email
     And match response.password == '#string'
     And match response.administrador == 'true'
 
@@ -36,7 +36,7 @@ Feature: Buscar usuário por ID - GET /users/{id}
     Then status 400
     And match response.message == '#string'
 
-  Scenario: Buscar usuário com ID inválido (formato incorreto)
+  Scenario: Buscar usuário com ID em formato inválido
     Given path 'usuarios', 'id-invalido'
     When method get
     Then status 400

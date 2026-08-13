@@ -1,7 +1,7 @@
 Feature: Listar usuários - GET /users
 
   Background:
-    * url baseUrl
+    * url 'https://serverest.dev'
     * configure headers = { 'Content-Type': 'application/json' }
 
   Scenario: Listar todos os usuários com sucesso

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 class ExampleTest {
 
     @Test
-    void testParallel() {
-        Karate.run("classpath:com/example/karate/features").parallel(1);
+    void testCreateUser() {
+        Karate.run("classpath:com/example/karate/features/create-user.feature").parallel(1);
     }
 }

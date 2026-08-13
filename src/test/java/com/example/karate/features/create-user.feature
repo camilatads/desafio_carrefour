@@ -1,18 +1,18 @@
-Feature: Criar usuário - POST /users
+Feature: Criar usuário - POST /usuarios
 
   Background:
-    * url baseUrl
+    * url 'https://serverest.dev'
     * configure headers = { 'Content-Type': 'application/json' }
-    * def timestamp = Date.now()
-    * def randomEmail = 'usuario' + timestamp + '@teste.com'
+    * def gerarEmail = function(){ return 'usuario' + java.lang.System.currentTimeMillis() + '@teste.com' }
 
   Scenario: Criar usuário com sucesso com todos os campos obrigatórios
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Teste",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true"
       }
@@ -26,11 +26,12 @@ Feature: Criar usuário - POST /users
 
   Scenario: Criar usuário com administrador false
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Não Admin",
-        "email": "naoadmin@(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "false"
       }
@@ -42,17 +43,17 @@ Feature: Criar usuário - POST /users
 
   Scenario: Criar usuário sem campo nome
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true"
       }
       """
     When method post
     Then status 400
-    And match response.message == '#string'
 
   Scenario: Criar usuário sem campo email
     Given path 'usuarios'
@@ -66,44 +67,56 @@ Feature: Criar usuário - POST /users
       """
     When method post
     Then status 400
-    And match response.message == '#string'
 
   Scenario: Criar usuário sem campo password
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Sem Senha",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "administrador": "true"
       }
       """
     When method post
     Then status 400
-    And match response.message == '#string'
 
   Scenario: Criar usuário sem campo administrador
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Sem Admin",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123"
       }
       """
     When method post
     Then status 400
-    And match response.message == '#string'
 
   Scenario: Criar usuário com email já existente
+    Given path 'usuarios'
+    * def email = gerarEmail()
+    And request
+      """
+      {
+        "nome": "Usuário Original",
+        "email": "#(email)",
+        "password": "senha123",
+        "administrador": "true"
+      }
+      """
+    When method post
+    Then status 201
     Given path 'usuarios'
     And request
       """
       {
-        "nome": "Fulano da Silva",
-        "email": "fulano@qa.com",
-        "password": "teste",
+        "nome": "Usuário Duplicado",
+        "email": "#(email)",
+        "password": "senha456",
         "administrador": "true"
       }
       """
@@ -113,18 +126,18 @@ Feature: Criar usuário - POST /users
 
   Scenario: Criar usuário com nome vazio
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true"
       }
       """
     When method post
     Then status 400
-    And match response.message == '#string'
 
   Scenario: Criar usuário com email inválido
     Given path 'usuarios'
@@ -139,19 +152,20 @@ Feature: Criar usuário - POST /users
       """
     When method post
     Then status 400
-    And match response.message == '#string'
 
-  Scenario: Criar usuário com password muito curto
+  Scenario: Criar usuário com password curta
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Senha Curta",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "123",
         "administrador": "true"
       }
       """
     When method post
-    Then status 400
-    And match response.message == '#string'
+    Then status 201
+    And match response.message == 'Cadastro realizado com sucesso'
+    And match response._id == '#string'

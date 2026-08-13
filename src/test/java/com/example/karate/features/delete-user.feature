@@ -1,18 +1,18 @@
 Feature: Excluir usuário - DELETE /users/{id}
 
   Background:
-    * url baseUrl
+    * url 'https://serverest.dev'
     * configure headers = { 'Content-Type': 'application/json' }
-    * def timestamp = Date.now()
-    * def randomEmail = 'usuario' + timestamp + '@teste.com'
+    * def gerarEmail = function(){ return 'usuario' + java.lang.System.currentTimeMillis() + '@teste.com' }
 
   Scenario: Excluir usuário com sucesso
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Para Excluir",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true"
       }
@@ -48,11 +48,12 @@ Feature: Excluir usuário - DELETE /users/{id}
 
   Scenario: Excluir usuário e verificar que não existe mais
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Para Verificar Exclusão",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true"
       }
@@ -70,11 +71,12 @@ Feature: Excluir usuário - DELETE /users/{id}
 
   Scenario: Tentar excluir o mesmo usuário duas vezes
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Dupla Exclusão",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true"
       }

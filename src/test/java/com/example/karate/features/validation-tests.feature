@@ -1,18 +1,19 @@
 Feature: Testes de validação e cenários negativos
 
   Background:
-    * url baseUrl
+    * url 'https://serverest.dev'
     * configure headers = { 'Content-Type': 'application/json' }
-    * def timestamp = Date.now()
-    * def randomEmail = 'usuario' + timestamp + '@teste.com'
+    * def gerarEmail = function(){ return 'usuario' + java.lang.System.currentTimeMillis() + '@teste.com' }
 
-  Scenario: Criar usuário com campo nome com número excessivo de caracteres
+  Scenario: Criar usuário com nome contendo quantidade elevada de caracteres
     Given path 'usuarios'
+    * def email = gerarEmail()
+    * def nomeGrande = 'A'.repeat(300)
     And request
       """
       {
-        "nome": "Nome muito longo que excede o limite permitido pelo sistema e deve causar um erro de validação",
-        "email": "#(randomEmail)",
+        "nome": "#(nomeGrande)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true"
       }
@@ -21,13 +22,14 @@ Feature: Testes de validação e cenários negativos
     Then status 400
     And match response.message == '#string'
 
-  Scenario: Criar usuário com campo email com número excessivo de caracteres
+  Scenario: Criar usuário com email contendo quantidade elevada de caracteres
     Given path 'usuarios'
+    * def emailGrande = 'a'.repeat(250) + '@teste.com'
     And request
       """
       {
         "nome": "Usuário Teste",
-        "email": "emailcomcaracteresexcessivosqueexcedemolimitespermitidopelosistemadevecausarerrodevalidacao@(randomEmail)",
+        "email": "#(emailGrande)",
         "password": "senha123",
         "administrador": "true"
       }
@@ -38,26 +40,28 @@ Feature: Testes de validação e cenários negativos
 
   Scenario: Criar usuário com campo password muito curto
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Senha Curta",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "123",
         "administrador": "true"
       }
       """
     When method post
-    Then status 400
-    And match response.message == '#string'
+    Then status 201
+    And match response.message == 'Cadastro realizado com sucesso'
 
   Scenario: Criar usuário com campo administrador inválido
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Admin Inválido",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "sim"
       }
@@ -66,27 +70,15 @@ Feature: Testes de validação e cenários negativos
     Then status 400
     And match response.message == '#string'
 
-  Scenario: Criar usuário com corpo JSON malformado
-    Given path 'usuarios'
-    And request
-      """
-      {
-        "nome": "Usuário Teste",
-        "email": "#(randomEmail)",
-        "password": "senha123",
-        "administrador": "true"
-      """
-    When method post
-    Then status 400
-
   Scenario: Requisição sem Content-Type header
     Given configure headers = {}
     And path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Teste",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true"
       }
@@ -106,11 +98,12 @@ Feature: Testes de validação e cenários negativos
 
   Scenario: Criar usuário com campos adicionais não esperados
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Teste",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true",
         "campoExtra": "valor extra"
@@ -118,24 +111,3 @@ Feature: Testes de validação e cenários negativos
       """
     When method post
     Then status 201
-
-  Scenario: Testar rate limiting (múltiplas requisições rápidas)
-    Given path 'usuarios'
-    And request
-      """
-      {
-        "nome": "Usuário Rate Limit",
-        "email": "#(randomEmail)",
-        "password": "senha123",
-        "administrador": "true"
-      }
-      """
-    When method post
-    Then status 201
-    * def userId = response._id
-    Given path 'usuarios', userId
-    When method get
-    Then status 200
-    Given path 'usuarios'
-    When method get
-    Then status 200

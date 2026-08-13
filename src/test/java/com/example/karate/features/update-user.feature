@@ -1,18 +1,18 @@
 Feature: Atualizar usuário - PUT /users/{id}
 
   Background:
-    * url baseUrl
+    * url 'https://serverest.dev'
     * configure headers = { 'Content-Type': 'application/json' }
-    * def timestamp = Date.now()
-    * def randomEmail = 'usuario' + timestamp + '@teste.com'
+    * def gerarEmail = function(){ return 'usuario' + java.lang.System.currentTimeMillis() + '@teste.com' }
 
   Scenario: Atualizar usuário com sucesso
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Original",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true"
       }
@@ -26,7 +26,7 @@ Feature: Atualizar usuário - PUT /users/{id}
       """
       {
         "nome": "Usuário Atualizado",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "novaSenha456",
         "administrador": "false"
       }
@@ -35,15 +35,22 @@ Feature: Atualizar usuário - PUT /users/{id}
     Then status 200
     And match response.message == 'Registro alterado com sucesso'
     And match response._id == userId
+    Given path 'usuarios', userId
+    When method get
+    Then status 200
+    And match response.nome == 'Usuário Atualizado'
+    And match response.email == email
+    And match response.administrador == 'false'
     * print 'Usuário atualizado com sucesso'
 
-  Scenario: Atualizar apenas o nome do usuário
+  Scenario: Atualizar usuário alterando o valor do nome
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Para Atualizar Nome",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true"
       }
@@ -56,7 +63,7 @@ Feature: Atualizar usuário - PUT /users/{id}
       """
       {
         "nome": "Nome Atualizado",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true"
       }
@@ -64,6 +71,10 @@ Feature: Atualizar usuário - PUT /users/{id}
     When method put
     Then status 200
     And match response.message == 'Registro alterado com sucesso'
+    Given path 'usuarios', userId
+    When method get
+    Then status 200
+    And match response.nome == 'Nome Atualizado'
 
   Scenario: Atualizar usuário com ID inexistente
     Given path 'usuarios', '999999999999999999999999'
@@ -82,11 +93,12 @@ Feature: Atualizar usuário - PUT /users/{id}
 
   Scenario: Atualizar usuário sem campo nome
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Sem Nome",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true"
       }
@@ -98,7 +110,7 @@ Feature: Atualizar usuário - PUT /users/{id}
     And request
       """
       {
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true"
       }
@@ -109,11 +121,12 @@ Feature: Atualizar usuário - PUT /users/{id}
 
   Scenario: Atualizar usuário sem campo email
     Given path 'usuarios'
+    * def email = gerarEmail()
     And request
       """
       {
         "nome": "Usuário Sem Email",
-        "email": "#(randomEmail)",
+        "email": "#(email)",
         "password": "senha123",
         "administrador": "true"
       }
@@ -136,24 +149,25 @@ Feature: Atualizar usuário - PUT /users/{id}
 
   Scenario: Atualizar usuário com email já existente
     Given path 'usuarios'
+    * def email1 = gerarEmail()
     And request
       """
       {
         "nome": "Usuário 1",
-        "email": "#(randomEmail)",
+        "email": "#(email1)",
         "password": "senha123",
         "administrador": "true"
       }
       """
     When method post
     Then status 201
-    * def userId1 = response._id
     Given path 'usuarios'
+    * def email2 = gerarEmail()
     And request
       """
       {
         "nome": "Usuário 2",
-        "email": "usuario2@(randomEmail)",
+        "email": "#(email2)",
         "password": "senha123",
         "administrador": "true"
       }
@@ -166,7 +180,7 @@ Feature: Atualizar usuário - PUT /users/{id}
       """
       {
         "nome": "Usuário 2",
-        "email": randomEmail,
+        "email": "#(email1)",
         "password": "senha123",
         "administrador": "true"
       }

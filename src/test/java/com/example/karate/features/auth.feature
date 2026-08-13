@@ -1,7 +1,7 @@
 Feature: Autenticação na API ServeRest
 
   Background:
-    * url baseUrl
+    * url 'https://serverest.dev'
     * configure headers = { 'Content-Type': 'application/json' }
 
   Scenario: Login com credenciais válidas e obtenção do token JWT
