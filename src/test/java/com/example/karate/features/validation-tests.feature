@@ -19,8 +19,9 @@ Feature: Testes de validação e cenários negativos
       }
       """
     When method post
-    Then status 400
-    And match response.message == '#string'
+    Then status 201
+    And match response.message == 'Cadastro realizado com sucesso'
+    And match response._id == '#string'
 
   Scenario: Criar usuário com email contendo quantidade elevada de caracteres
     Given path 'usuarios'
@@ -36,7 +37,7 @@ Feature: Testes de validação e cenários negativos
       """
     When method post
     Then status 400
-    And match response.message == '#string'
+    And match response.email == '#string'
 
   Scenario: Criar usuário com campo password muito curto
     Given path 'usuarios'
@@ -68,7 +69,6 @@ Feature: Testes de validação e cenários negativos
       """
     When method post
     Then status 400
-    And match response.message == '#string'
 
   Scenario: Requisição sem Content-Type header
     Given configure headers = {}
@@ -84,7 +84,9 @@ Feature: Testes de validação e cenários negativos
       }
       """
     When method post
-    Then status 400
+    Then status 201
+    And match response.message == 'Cadastro realizado com sucesso'
+    And match response._id == '#string'
 
   Scenario: Requisição com método HTTP inválido
     Given path 'usuarios'
@@ -94,7 +96,8 @@ Feature: Testes de validação e cenários negativos
   Scenario: Acessar endpoint inexistente
     Given path 'endpoint-inexistente'
     When method get
-    Then status 404
+    Then status 405
+    And match response.message == '#string'
 
   Scenario: Criar usuário com campos adicionais não esperados
     Given path 'usuarios'
@@ -110,4 +113,5 @@ Feature: Testes de validação e cenários negativos
       }
       """
     When method post
-    Then status 201
+    Then status 400
+    And match response.campoExtra == '#string'

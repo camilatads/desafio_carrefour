@@ -7,6 +7,6 @@ class ExampleTest {
 
     @Test
     void testCreateUser() {
-        Karate.run("classpath:com/example/karate/features/create-user.feature").parallel(1);
+        Karate.run("classpath:com/example/karate/features").parallel(1);
     }
 }

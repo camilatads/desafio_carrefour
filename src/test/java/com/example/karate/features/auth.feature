@@ -55,7 +55,7 @@ Feature: Autenticação na API ServeRest
       """
     When method post
     Then status 400
-    And match response.message == '#string'
+    And match response.email == '#string'
 
   Scenario: Login sem campo password
     Given path 'login'
@@ -67,4 +67,4 @@ Feature: Autenticação na API ServeRest
       """
     When method post
     Then status 400
-    And match response.message == '#string'
+    And match response.password == '#string'

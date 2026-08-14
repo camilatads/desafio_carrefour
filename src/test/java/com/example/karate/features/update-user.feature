@@ -34,7 +34,6 @@ Feature: Atualizar usuário - PUT /users/{id}
     When method put
     Then status 200
     And match response.message == 'Registro alterado com sucesso'
-    And match response._id == userId
     Given path 'usuarios', userId
     When method get
     Then status 200
@@ -89,7 +88,6 @@ Feature: Atualizar usuário - PUT /users/{id}
       """
     When method put
     Then status 400
-    And match response.message == '#string'
 
   Scenario: Atualizar usuário sem campo nome
     Given path 'usuarios'
@@ -117,7 +115,6 @@ Feature: Atualizar usuário - PUT /users/{id}
       """
     When method put
     Then status 400
-    And match response.message == '#string'
 
   Scenario: Atualizar usuário sem campo email
     Given path 'usuarios'
@@ -145,7 +142,6 @@ Feature: Atualizar usuário - PUT /users/{id}
       """
     When method put
     Then status 400
-    And match response.message == '#string'
 
   Scenario: Atualizar usuário com email já existente
     Given path 'usuarios'

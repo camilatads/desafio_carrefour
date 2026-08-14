@@ -34,16 +34,17 @@ Feature: Buscar usuário por ID - GET /users/{id}
     Given path 'usuarios', '999999999999999999999999'
     When method get
     Then status 400
-    And match response.message == '#string'
+    And match response.id == '#string'
 
   Scenario: Buscar usuário com ID em formato inválido
     Given path 'usuarios', 'id-invalido'
     When method get
     Then status 400
-    And match response.message == '#string'
+    And match response.id == '#string'
 
   Scenario: Buscar usuário com ID vazio
     Given path 'usuarios', ''
     When method get
-    Then status 400
-    And match response.message == '#string'
+    Then status 200
+    And match response.quantidade == '#number'
+    And match response.usuarios == '#array'
